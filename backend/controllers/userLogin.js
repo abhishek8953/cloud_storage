@@ -46,9 +46,15 @@ export const loginUser = async (req, res) => {
 export const loginSec = async (req, res) => {
 	const { sec } = req.body;
 	try {
-		const user = await User.findOne({ sec }).select("-password -sec")
-		if (!user) return res.json({ success: false, message: "user not find" });
-        return res.json({success:true,message:"login sucessfull",user:user})
+		
+		const user = await User.findOne({ sec }).select("-password -sec");
+		if (!user)
+			return res.json({ success: false, message: "user not find" });
+		return res.json({
+			success: true,
+			message: "login sucessfull",
+			user: user,
+		});
 	} catch (err) {
 		res.send(err);
 	}

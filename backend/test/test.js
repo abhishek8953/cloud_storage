@@ -17,10 +17,13 @@
 // console.log(uniquearray.length);
 
 
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 
 function getCheck(){
-    User.find().then((data)=>{
+    const user=User.find({},{sec:1})
+    user.then((data)=>{
         console.log(data);
     })
 }
+
+getCheck();

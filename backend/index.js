@@ -7,7 +7,8 @@ import { connectDb } from "./libs/connectDb.js";
 import { loginSec, loginUser } from "./controllers/userLogin.js";
 import { registerUser } from "./controllers/userRegestration.js";
 import userModel from "./models/userModel.js";
-
+import cookieparser from "cookie-parser";
+import { auth } from "./controllers/auth.js";
 
 dotenv.config(); // Load environment variables
 
@@ -21,13 +22,12 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+app.use(express.json());
+app.use(cookieparser());
 
-app.use(express.json())
-
-
-app.post('/login',loginUser);
-app.post('/loginsecret',loginSec)
-app.post('/regester',registerUser)
+app.post("/login", loginUser);
+app.post("/loginsecret", loginSec);
+app.post("/regester", registerUser);
 
 app.post("/upload-folder", upload.array("files"), async (req, res) => {
 	try {
@@ -56,12 +56,22 @@ app.post("/upload-folder", upload.array("files"), async (req, res) => {
 	}
 });
 
-app.post('/del',(req,res)=>{
-  userModel.deleteMany().then(data=>{
-    console.log(data);
-    res.send(data)
-  })
-})
+app.post("/del", auth, (req, res) => {
+	res.send("in del");
+	// userModel.deleteMany().then((data) => {
+	// 	console.log(data);
+	// 	res.send(data);
+	// });
+});
+
+app.get("/logout", (req, res) => {
+	try {
+		res.clearCookie("token");
+		res.json({ success: true, message: "logout successfully" });
+	} catch (err) {
+		console.log(err);
+	}
+});
 
 app.listen(5000, () => {
 	connectDb();

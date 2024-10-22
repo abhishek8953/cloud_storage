@@ -33,8 +33,10 @@ export const loginUser = async (req, res) => {
 			secure: true, // Use secure cookies in production
 			maxAge: 3600000, // 1 hour
 		});
-
-		return res.status(200).json({ message: "Login successful" });
+		// const modifiedUser={...user.toObject,"password":""}
+		const tt = user.toObject();
+		delete tt.password;
+		return res.status(200).json({ message: "Login successful", tt });
 	} catch (error) {
 		console.error("Login error:", error);
 		return res.status(500).json({ message: "Internal server error" });
@@ -46,7 +48,6 @@ export const loginUser = async (req, res) => {
 export const loginSec = async (req, res) => {
 	const { sec } = req.body;
 	try {
-		
 		const user = await User.findOne({ sec }).select("-password -sec");
 		if (!user)
 			return res.json({ success: false, message: "user not find" });

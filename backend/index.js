@@ -9,6 +9,10 @@ import { registerUser } from "./controllers/userRegestration.js";
 import userModel from "./models/userModel.js";
 import cookieparser from "cookie-parser";
 import { auth } from "./controllers/auth.js";
+import cors from "cors";
+import {getFile, getFileWithparent} from "./controllers/getFile.js";
+import {addFille} from "./controllers/addFile.js";
+
 
 dotenv.config(); // Load environment variables
 
@@ -22,6 +26,7 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+app.use(cors({ credentials: true, origin: process.env.FRONTENd_URL }));
 app.use(express.json());
 app.use(cookieparser());
 
@@ -57,16 +62,35 @@ app.post("/upload-folder", upload.array("files"), async (req, res) => {
 });
 
 app.post("/del", auth, (req, res) => {
-	res.send("in del");
-	// userModel.deleteMany().then((data) => {
-	// 	console.log(data);
-	// 	res.send(data);
-	// });
+	userModel.deleteMany().then((data) => {
+		console.log(data);
+		res.send(data);
+	});
 });
+app.get('/check',auth,(req,res)=>{
+	if(req.id){
+		return res.status(200).json({"success":true,"message":"logged",id:req.id})
+	}
+	return res.status(400).json({"success":false,"message":"not logged"})
+})
+
+
+app.post('/addFile',auth,addFille)
+app.get('/getFile/:parentId',auth,getFileWithparent)
+app.get('/getFile',auth,getFile)
+
 
 app.get("/logout", (req, res) => {
+	
 	try {
-		res.clearCookie("token");
+	    res.clearCookie("token",{
+			expires:0,
+			secure:true,
+			path:"/",
+			sameSite:"none",
+			httpOnly:true
+			
+		});
 		res.json({ success: true, message: "logout successfully" });
 	} catch (err) {
 		console.log(err);
